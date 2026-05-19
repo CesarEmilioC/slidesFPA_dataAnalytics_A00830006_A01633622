@@ -1,0 +1,31 @@
+# LaTeX build artefacts
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.bbl
+*.blg
+*.idx
+*.lof
+*.lot
+*.run.xml
+*.vrb
+*.bcf
+*-blx.bib
+auto/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
+
+# Local PDFs (compile on Overleaf; do not check in unless explicitly needed)
+*.pdf
