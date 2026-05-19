@@ -100,17 +100,17 @@
 \newcommand{\bad}[1]{{\color{TecRed}\textbf{#1}}}
 \newcommand{\heading}[1]{{\color{TecBlue}\textbf{#1}}}
 \newcommand{\figcaption}[1]{%
-  \vspace{-7pt}%
+  \vspace{-11pt}%
   \begingroup
     \centering\color{TecGray}%
-    \textcolor{TecGold}{\rule{0.22\linewidth}{0.25pt}}\par%
-    \vspace{-1pt}%
-    \fontsize{6.5}{8}\selectfont\itshape #1\par%
+    \textcolor{TecGold}{\rule{0.20\linewidth}{0.25pt}}\par%
+    \vspace{-2pt}%
+    \fontsize{6}{7.5}\selectfont\itshape #1\par%
   \endgroup
-  \vspace{-3pt}%
+  \vspace{-4pt}%
 }
 
-\graphicspath{{figures/}}
+\graphicspath{{figures/}{otherImages/}}
 
 % =============================================================================
 %  Title metadata
@@ -194,6 +194,10 @@
 \end{itemize}
 
 \column{0.40\textwidth}
+\begin{center}
+  \includegraphics[width=0.78\linewidth,keepaspectratio]{sp500_banner.png}
+\end{center}
+\vspace{-4pt}
 \begin{block}{Research question}
 \footnotesize Does a tree-based ensemble of technical indicators \alert{plus} short-form news sentiment beat a technical-only baseline at predicting next-day S\&P 500 direction --- and does the gain grow with sector volatility?
 \end{block}
@@ -266,8 +270,8 @@ $y_t = \begin{cases} 1 & \text{if } C_{t+1} > C_t \text{ (upward)} \\ 0 & \text{
 \begin{frame}{Data sources}
 \small
 \begin{columns}[T,onlytextwidth]
-\column{0.5\textwidth}
-\heading{Historical market data}
+\column{0.47\textwidth}
+\heading{Historical market data} \hfill \raisebox{-3pt}{\includegraphics[height=12pt,keepaspectratio]{yfinance_logo.png}}
 \begin{itemize}\setlength\itemsep{2pt}
   \item Source: \texttt{yfinance} (Yahoo Finance wrapper).
   \item Period: \textbf{Jan 2010 -- Dec 2019} (avoids COVID, matches news coverage).
@@ -275,8 +279,9 @@ $y_t = \begin{cases} 1 & \text{if } C_{t+1} > C_t \text{ (upward)} \\ 0 & \text{
   \item Variables: Open, High, Low, Close, Volume.
 \end{itemize}
 
-\column{0.5\textwidth}
-\heading{Financial news}
+\column{0.06\textwidth}\,
+\column{0.47\textwidth}
+\heading{Financial news} \hfill \raisebox{-3pt}{\includegraphics[height=11pt,keepaspectratio]{kaggle_brand.png}}
 \begin{itemize}\setlength\itemsep{2pt}
   \item Kaggle ``Analyst Ratings Processed'' ($>$1.4M headlines, 6{,}000+ tickers).
   \item Schema: \texttt{date}, \texttt{title}, \texttt{stock}.
@@ -294,7 +299,10 @@ $y_t = \begin{cases} 1 & \text{if } C_{t+1} > C_t \text{ (upward)} \\ 0 & \text{
 % ------------------------------ Technical indicators -------------------------
 \begin{frame}{Technical indicators}
 \small
+\begin{minipage}{0.70\linewidth}
 Seven indicators derived from OHLCV. All persisted to per-dataset CSVs in \texttt{datasets\_/}.
+\end{minipage}\hfill
+\raisebox{-6pt}{\includegraphics[height=24pt,keepaspectratio]{candle_chart.png}}
 
 \vspace{6pt}
 \begin{center}
@@ -386,26 +394,28 @@ Mean daily sentiment: $+0.033$, $\sigma=0.168$; 100\% trading-day coverage.}
 \figcaption{$2\times2\times4$ factorial design: 2 algorithms $\times$ 2 feature sets $\times$ 4 datasets = 16 runs.}
 
 \column{0.38\textwidth}
-\small
+\footnotesize
 \heading{Two algorithms}
-\begin{itemize}
+\begin{itemize}\setlength\itemsep{1pt}
   \item Random Forest (\texttt{sklearn}).
   \item XGBoost.
 \end{itemize}
 
+\vspace{2pt}
 \heading{Two feature sets}
-\begin{itemize}
+\begin{itemize}\setlength\itemsep{1pt}
   \item Technical only (7 features).
-  \item Technical + \texttt{sentiment\_mean} (8 features).
+  \item Technical $+$ \texttt{sentiment\_mean} (8 feat.).
 \end{itemize}
 
+\vspace{2pt}
 \heading{Four datasets}
-\begin{itemize}
+\begin{itemize}\setlength\itemsep{1pt}
   \item SP500 broad index.
-  \item XLP (low), XLK (median), XLE (high) sector ETFs.
+  \item XLP (low), XLK (median), XLE (high).
 \end{itemize}
 
-\vspace{4pt}
+\vspace{2pt}
 $\Rightarrow$ \textbf{16 experimental runs.}
 \end{columns}
 \end{frame}
@@ -470,16 +480,16 @@ XGB SP500 F1\,=\,0.66 reflects majority-class bias; \textbf{XLK} collapses to cl
 \begin{columns}[T,onlytextwidth]
 \column{0.50\textwidth}
 \begin{center}
-  \includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{roc_sp500.png}
+  \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{roc_sp500.png}
 \end{center}
-\figcaption{ROC overlay. The gold curve (sentiment) sits above the blue one between FPR $\in [0.3, 0.9]$ --- where most production thresholds live.}
+\figcaption{ROC overlay --- gold (sentiment) sits above blue (tech-only).}
 
 \column{0.04\textwidth}\,
 \column{0.46\textwidth}
 \begin{center}
-  \includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{confusion_matrix_sp500.png}
+  \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{confusion_matrix_sp500.png}
 \end{center}
-\figcaption{Confusion matrix at $t=0.50$. \textbf{Recall $0.84$} on UP days, precision $0.57$ --- the model trades false-positives for high catch-rate on rallies.}
+\figcaption{Confusion at $t=0.50$ --- recall $0.84$, precision $0.57$.}
 \end{columns}
 \end{frame}
 
@@ -546,10 +556,10 @@ Random coin flip                        & $\sim$0.50 & $\sim$0.50 & 0.50 \\
 \end{columns}
 
 \vspace{2pt}
-\footnotesize
-\begin{itemize}\setlength\itemsep{1pt}
-  \item \heading{Acc / F1 are marginal:} $+0.05$ Acc / $+0.06$ F1 above the always-up freebie --- small but consistent.
-  \item \heading{AUC $\approx 0.50$ $=$ no consistent ranking;} the contribution is in the \textit{delta} ($\Delta$AUC up to $+0.04$), not the level.
+\scriptsize
+\begin{itemize}\setlength\itemsep{0pt}\setlength\parskip{0pt}
+  \item \heading{Acc / F1 marginal:} $+0.05$ / $+0.06$ above the always-up freebie --- small but consistent.
+  \item \heading{AUC $\approx 0.50$ $=$ no ranking;} the contribution is the $\Delta$AUC ($+0.04$), not the level.
   \item Consistent with the \emph{weak form of EMH} (Fama, 1970) --- we confirm the ceiling, not break it.
 \end{itemize}
 \end{frame}
@@ -581,14 +591,14 @@ Headline gaps shrink once settings are normalised: daily $+$ titles-only is hard
 
 % ------------------------------ Live demo -----------------------------------
 \begin{frame}{Live demo --- predict tomorrow on Google Colab}
-\footnotesize Companion Colab notebook running the four pre-trained classifiers on a \textbf{fully live} pipeline: today's OHLCV $+$ headlines $\to$ next-day \textbf{UP} / \textbf{DOWN} / \textbf{STABLE} call.
+\footnotesize Colab notebook running the four pre-trained classifiers on a \textbf{fully live} pipeline: today's OHLCV $+$ headlines $\to$ next-day \textbf{UP} / \textbf{DOWN} / \textbf{STABLE} call.
 
 \vspace{2pt}
 \begin{columns}[T,onlytextwidth]
 \column{0.50\textwidth}
-\footnotesize
+\scriptsize
 \heading{What the notebook does}
-\begin{enumerate}\setlength\itemsep{2pt}
+\begin{enumerate}\setlength\itemsep{0pt}\setlength\parskip{0pt}
   \item Loads the four pre-trained classifiers from \texttt{models\_demo/} on GitHub.
   \item Pulls today's OHLCV via \texttt{yfinance}; rebuilds the seven indicators.
   \item Scores today's headlines with \texttt{ProsusAI/finbert}; aggregates \texttt{sentiment\_mean}.
@@ -597,17 +607,16 @@ Headline gaps shrink once settings are normalised: daily $+$ titles-only is hard
 
 \vspace{4pt}
 \begin{block}{Watch the demo}
-\centering
-\href{https://drive.google.com/file/d/1WS7XSWKpDwQto0w0laguOEvEsgL1kAas/view?usp=sharing}{\textbf{\color{TecBlue}Recorded walk-through} \,\textcolor{TecGold}{$\rightarrow$}\, click here}\\[1pt]
-\scriptsize\texttt{08\_demo\_next\_day\_prediction.ipynb}
+\centering\scriptsize
+\href{https://drive.google.com/file/d/1WS7XSWKpDwQto0w0laguOEvEsgL1kAas/view?usp=sharing}{\textbf{\color{TecBlue}Recorded walk-through} \,\textcolor{TecGold}{$\rightarrow$}\, click here}
 \end{block}
 
 \column{0.04\textwidth}\,
 \column{0.46\textwidth}
 \begin{center}
-  \includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{calibration_sp500.png}
+  \includegraphics[width=\linewidth,height=0.62\textheight,keepaspectratio]{calibration_sp500.png}
 \end{center}
-\figcaption{Calibration curve --- SP500 + RF + Sentiment. The model is roughly calibrated in $[0.45, 0.55]$, which is exactly the band the demo flags as ``stable / uncertain''.}
+\figcaption{Calibration --- SP500 + RF + Sentiment; reasonably calibrated only in $[0.45, 0.55]$, the demo's ``stable'' band.}
 \end{columns}
 \end{frame}
 
@@ -634,56 +643,58 @@ Headline gaps shrink once settings are normalised: daily $+$ titles-only is hard
 
 % ------------------------------ Limitations ----------------------------------
 \begin{frame}{Limitations}
-\footnotesize
+\scriptsize
 \begin{columns}[T,onlytextwidth]
 \column{0.55\textwidth}
-\begin{itemize}\setlength\itemsep{2pt}
-  \item \heading{No statistical significance test.} The $+0.04$ AUC delta is a point estimate; a DeLong test or bootstrap CI on the 501-day test set is needed.
-  \item \heading{Transaction-cost reality check} (right). Even at $+0.05$ accuracy, a 5--10\,bp round-trip cost erodes most of the edge --- our results are \textit{scientific}, not yet \textit{tradable}.
-  \item \heading{News coverage skew.} Kaggle corpus emphasises U.S.\ mega-caps; smaller sector constituents under-represented.
-  \item \heading{Headline-only sentiment.} Body text and analyst-report tone ignored; FinBERT runs on short titles only.
-  \item \heading{Sampling cap.} 50 headlines/day is a compute compromise; heavy-news days may be undercounted.
-  \item \heading{Single chronological split.} A walk-forward backtest would give stronger evidence than one 80/20 cut.
-  \item \heading{Hyper-parameters not tuned.} Defaults are used so the 16 runs stay directly comparable.
+\begin{itemize}\setlength\itemsep{1pt}\setlength\parskip{0pt}
+  \item \heading{No significance test.} The $+0.04$ AUC delta is a point estimate; a DeLong / bootstrap CI is needed.
+  \item \heading{Transaction-cost reality} (right). A 5--10\,bp round-trip cost erodes most of the edge --- \textit{scientific}, not yet \textit{tradable}.
+  \item \heading{News coverage skew.} Kaggle corpus emphasises U.S.\ mega-caps; smaller constituents under-represented.
+  \item \heading{Headline-only sentiment.} Body text and analyst-report tone ignored.
+  \item \heading{Sampling cap.} 50 headlines/day is a compute compromise; heavy-news days undercounted.
+  \item \heading{Single chronological split.} A walk-forward backtest would give stronger evidence.
+  \item \heading{Hyper-parameters not tuned.} Defaults kept so the 16 runs stay comparable.
 \end{itemize}
 
 \column{0.04\textwidth}\,
 \column{0.41\textwidth}
 \begin{center}
-  \includegraphics[width=\linewidth,height=0.62\textheight,keepaspectratio]{transaction_cost_erosion.png}
+  \includegraphics[width=\linewidth,height=0.58\textheight,keepaspectratio]{transaction_cost_erosion.png}
 \end{center}
-\figcaption{Stylised: a $+5$\,pp accuracy edge on SP500 daily long/flat breaks even around $9$\,bp round-trip cost; realistic retail costs put us below break-even.}
+\figcaption{Stylised: a $+5$\,pp accuracy edge breaks even at $\sim$$9$\,bp round-trip cost.}
 \end{columns}
 \end{frame}
 
 % ------------------------------ Trading reality check ------------------------
-\begin{frame}{Trading reality check --- cumulative return on the 501-day test}
-\footnotesize Equity curves on the SP500 test window, starting from \$1, gross of transaction costs.
+\begin{frame}{Trading reality check --- cumulative return}
+\footnotesize SP500 equity curves on the 501-day test window, \$1 start, gross of costs.
 
 \vspace{2pt}
 \begin{center}
-  \includegraphics[width=0.92\linewidth,height=0.66\textheight,keepaspectratio]{cumulative_returns_sp500.png}
+  \includegraphics[width=0.88\linewidth,height=0.56\textheight,keepaspectratio]{cumulative_returns_sp500.png}
 \end{center}
-\figcaption{Always-long captures the bull-run \$1\,$\to$\,\$1.19; our \good{RF\,+\,Sent.\ at $P\geq 0.55$} reaches \$1.17, with about half the time in-market. Random 50/50 ends at \$1.09.}
+\figcaption{Always-long \$1$\to$\$1.19; \good{RF\,+\,Sent.\ at $P\!\geq\!0.55$} \$1.17 ($\approx$50\% in-market); random \$1.09.}
 
-\vspace{1pt}
-\centerline{\scriptsize\itshape\color{TecGray} The +$0.04$ AUC translates to a real, but \emph{not yet tradable}, equity-curve advantage over random; buy-and-hold is still the strong baseline.}
+\vspace{2pt}
+\begin{center}\scriptsize\itshape\color{TecGray}
+The $+0.04$ AUC is a real signal over random --- but, gross of costs, buy-and-hold is still the strong baseline.
+\end{center}
 \end{frame}
 
 % ------------------------------ Conclusions ----------------------------------
 \begin{frame}{Conclusions}
-\small
+\footnotesize
 \begin{block}{Take-aways}
-\begin{enumerate}\setlength\itemsep{3pt}
-  \item Headline sentiment from FinBERT \alert{helps at the index level} when paired with Random Forest: $+0.05$ Acc, $+0.06$ F1, $+0.04$ AUC over the technical-only baseline --- small but consistent.
-  \item The sentiment effect is \alert{not monotonic in sector volatility}: high-vol XLE benefits, low-vol XLP does not, median-vol XLK also fails to benefit. \textbf{H2} is only partially supported.
-  \item The absolute AUC $\approx 0.50$ ceiling on individual sectors is \alert{consistent with the weak form of EMH} --- the contribution is the \textit{sign and direction} of the delta, not a tradable signal.
+\begin{enumerate}\setlength\itemsep{2pt}\setlength\parskip{0pt}
+  \item FinBERT headline sentiment \alert{helps at the index level} with Random Forest: $+0.05$ Acc, $+0.06$ F1, $+0.04$ AUC --- small but consistent.
+  \item The effect is \alert{not monotonic in sector volatility}: high-vol XLE benefits, XLP and XLK do not. \textbf{H2} only partially supported.
+  \item The AUC $\approx 0.50$ ceiling is \alert{consistent with the weak form of EMH} --- the contribution is the \textit{sign of the delta}, not a tradable signal.
 \end{enumerate}
 \end{block}
 
 \vspace{2pt}
-\begin{center}\footnotesize\itshape\color{TecGray}
-Honest framing: the model is \emph{slightly} better than ``always up''; it confirms sentiment carries information but does not break the daily-resolution ceiling.
+\begin{center}\scriptsize\itshape\color{TecGray}
+The model is \emph{slightly} better than ``always-up''; it confirms sentiment carries information without breaking the daily-resolution ceiling.
 \end{center}
 \end{frame}
 
@@ -804,22 +815,22 @@ Honest framing: the model is \emph{slightly} better than ``always up''; it confi
 
 \begin{frame}{Appendix --- Glossary (2/2): NLP and machine learning}
 \scriptsize
-\renewcommand{\arraystretch}{1.10}
+\renewcommand{\arraystretch}{1.05}
 \rowcolors{2}{TecLight}{white}
 \begin{tabular}{@{}p{2.8cm} p{\dimexpr\linewidth-2.8cm-2\tabcolsep\relax}@{}}
 \rowcolor{TecBlue}
 {\color{white}\textbf{Term}} & {\color{white}\textbf{Definition}} \\
-\heading{FinBERT}             & BERT fine-tuned (Araci, 2019) on financial text; returns pos / neg / neu probabilities. \\
+\heading{FinBERT}             & BERT fine-tuned on financial text (Araci, 2019); returns pos/neg/neu probabilities. \\
 \heading{Sentiment score}     & $s_i = P(\text{pos}) - P(\text{neg}) \in [-1,1]$; daily aggregate is the mean. \\
-\heading{Target $y_t$}        & $1$ if $C_{t+1} > C_t$, else $0$. We predict direction, not price. \\
-\heading{Random Forest}       & Bagging ensemble of decision trees with random feature subsets (Breiman 2001). \\
-\heading{XGBoost}             & Gradient-boosted trees built sequentially with regularisation (Chen \& Guestrin 2016). \\
+\heading{Target $y_t$}        & $1$ if $C_{t+1} > C_t$, else $0$ --- direction, not price. \\
+\heading{Random Forest}       & Bagging of decision trees with random feature subsets (Breiman 2001). \\
+\heading{XGBoost}             & Gradient-boosted trees with regularisation (Chen \& Guestrin 2016). \\
 \heading{Chronological split} & Train on first 80\% of days, test on last 20\% --- prevents look-ahead bias. \\
 \heading{Accuracy}            & $(TP+TN)/(TP+TN+FP+FN)$. \\
-\heading{Precision / Recall}  & $P = TP/(TP+FP)$;\ \ $R = TP/(TP+FN)$. \\
+\heading{Precision / Recall}  & $P = TP/(TP+FP)$;\ $R = TP/(TP+FN)$. \\
 \heading{F1 score}            & Harmonic mean: $F_1 = 2PR/(P+R)$. \\
-\heading{AUC-ROC}             & Area under ROC; threshold-free ranking quality ($0.5$ random, $1.0$ perfect). \\
-\heading{Look-ahead bias}     & Using info unavailable at prediction time; avoided via chronological splits. \\
+\heading{AUC-ROC}             & Area under ROC; threshold-free ranking ($0.5$ random, $1.0$ perfect). \\
+\heading{Look-ahead bias}     & Using info unavailable at prediction time. \\
 \end{tabular}
 \end{frame}
 
