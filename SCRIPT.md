@@ -105,75 +105,87 @@ The headline: **AUC clusters around 0.50** across the board. So technical indica
 
 Two clear wins. **SP500 with Random Forest plus sentiment** jumps to **0.56 Accuracy, 0.67 F1, and 0.51 AUC** &mdash; that is plus 0.05 accuracy, plus 0.06 F1, and plus 0.04 AUC over the baseline. **XLE with XGBoost plus sentiment** moves AUC from 0.48 to **0.52**. Notice though: the gains concentrate on the broad index and on the highest-volatility sector. The low and median sectors are largely unmoved.
 
-*A single chart makes the pattern obvious.*
+*Before the uplift chart, two diagnostic plots make the SP500 + RF + sentiment story concrete.*
 
-## 17. Sentiment uplift at a glance
+## 17. Where the +0.04 AUC lives &mdash; ROC and confusion matrix
+
+Two views of the same SP500 + Random Forest result. On the **left**, the ROC overlay: the **technical-only** curve (blue) sits essentially on the diagonal (AUC 0.478); the **technical + sentiment** curve (gold) lifts above it in the false-positive-rate range 0.3 to 0.9 (AUC 0.513). That gap, plus 0.035 in AUC, is the entire contribution of sentiment in numerical form. On the **right**, the confusion matrix at the default 0.5 threshold: **recall on UP days is 0.84** &mdash; the model catches most rallies &mdash; but precision is 0.57 because it tolerates 174 false positives to do it. So the model behaves as an **aggressive long-bias classifier**: it rarely misses an UP day, at the cost of crying wolf about a third of the time.
+
+*And here is what that aggressiveness looks like across the four datasets.*
+
+## 18. Sentiment uplift at a glance
 
 This is the delta plot: every bar is the change in a metric when sentiment is added. The **strongest positive cluster is SP500 + Random Forest** across all three metrics, plus **XLE + XGBoost** on accuracy and AUC. The standout negative is **XLP under Random Forest** &mdash; the only configuration where sentiment hurts on every metric, which is exactly the pattern H2 predicts for low-volatility sectors.
 
 *Where does that sentiment signal actually live inside the model?*
 
-## 18. Feature importance
+## 19. Feature importance
 
 `sentiment_mean`, in gold, ranks in the **top three features** for the two configurations where it materially improved AUC &mdash; SP500 with Random Forest and XLE with XGBoost. Beyond that, importance is spread fairly evenly across the seven technical indicators &mdash; no single technical feature dominates. The signal is genuinely additive.
 
 *Time to confront the hypotheses head-on.*
 
-## 19. Hypothesis assessment
+## 20. Hypothesis assessment
 
 **H1** &mdash; sentiment helps &mdash; is **partially supported**: it works at the index level under Random Forest and at the high-volatility sector under XGBoost, but the sector-level picture is inconsistent. **H2** &mdash; higher volatility means larger gain &mdash; is also **partially supported**: XLE, the most volatile, shows the largest positive XGBoost delta, but the median-volatility XLK does not benefit, so the gradient is not strictly monotonic. And for **RQ2**, on AUC the two algorithms are tied: **Random Forest wins on the index**, **XGBoost wins on the high-volatility sector**.
 
 *Before going on, let me address the obvious question: an AUC of 0.51 &mdash; is that even meaningful?*
 
-## 20. What does an AUC ≈ 0.50 actually mean?
+## 21. What does an AUC ≈ 0.50 actually mean?
 
-This slide answers that question honestly. We anchor our best run against two natural baselines on the same 501-day test window. **A random coin flip** sits at 0.50 accuracy, 0.50 F1, 0.50 AUC. The **"always-up"** rule, which exploits the mild up-bias of the market, gets accuracy 0.55 and F1 0.71 *for free* &mdash; but its AUC is still 0.50, because it has no ranking ability. **Our best model**, SP500 + Random Forest + sentiment, reaches 0.56 accuracy, 0.67 F1, 0.51 AUC. Reading the two columns: on accuracy and F1 we are **marginal &mdash; +0.05 and +0.06 over the always-up freebie**. On AUC the absolute number stays near 0.50, which means **no consistent ranking** between up and non-up days. **The real result is the delta from sentiment** &mdash; plus 0.04 AUC &mdash; not the absolute level. And that is exactly what the weak form of the Efficient Market Hypothesis predicts: daily price-only signals leave at most a marginal edge.
+This slide answers that question honestly. We anchor our best run against two natural baselines on the same 501-day test window, with the **bar chart on the right** as a visual companion to the table on the left. **A random coin flip** sits at 0.50 accuracy, 0.50 F1, 0.50 AUC. The **"always-up"** rule, which exploits the mild up-bias of the market, gets accuracy 0.55 and F1 0.71 *for free* &mdash; but its AUC is still 0.50, because it has no ranking ability. **Our best model**, SP500 + Random Forest + sentiment, reaches 0.56 accuracy, 0.67 F1, 0.51 AUC. The bars make it visually obvious: on Accuracy/F1 we are essentially **on top of the always-up baseline** (+0.05 / +0.06); on AUC the three bars are indistinguishable around 0.50. **The real result is the delta from sentiment** &mdash; plus 0.04 AUC &mdash; not the absolute level. That is exactly what the weak form of the Efficient Market Hypothesis predicts: daily price-only signals leave at most a marginal edge.
 
 *Put differently &mdash; is that delta competitive with what the literature reports?*
 
-## 21. Where do our results sit vs.\ prior literature?
+## 22. Where do our results sit vs.\ prior literature?
 
 Quick read of the table, top to bottom. **Bollen 2011** is famous for 87.6% accuracy on the Dow with Twitter mood, but on a seven-month window and a narrow lexicon &mdash; reproductions on longer windows fall to about 60%. **Vargas 2017** reports ~62% accuracy on the S&P 500 with deep encoders over full Reuters headline bodies; we use FinBERT on titles only, aggregated daily, which is a strictly harder setup. **Araci 2019** &mdash; FinBERT itself &mdash; scores F1 0.86 on the Financial Phrasebank, but that is **sentence-level sentiment**, not next-day direction; we test the downstream task. **Zhang 2019** gets AUC around 0.56 on Chinese A-shares with XGBoost + sentiment, but with per-ticker tuning; we keep defaults so all sixteen runs stay directly comparable. So **our 0.52 AUC on the high-volatility sector is the right order of magnitude** once you normalise the setup &mdash; daily resolution with headline-only sentiment is the hardest regime in this comparison.
 
 *Now I can show you the live system before we synthesise.*
 
-## 22. Live demo
+## 23. Live demo
 
-This slide links to a recorded walk-through on Drive. The Colab notebook loads our four trained classifiers, pulls today's OHLCV from `yfinance`, rebuilds the seven indicators in real time, fetches today's Yahoo Finance headlines, scores them with FinBERT, aggregates the daily sentiment, and prints an **UP / DOWN / STABLE** call from each model. Probabilities inside the 0.45-to-0.55 corridor are reported as "stable / uncertain" so the system stays honest about low-confidence days. If we have time, we can play the recording at the end; otherwise the QR-equivalent link is on the slide.
+This slide links to a recorded walk-through on Drive. The Colab notebook loads our four trained classifiers, pulls today's OHLCV from `yfinance`, rebuilds the seven indicators in real time, fetches today's Yahoo Finance headlines, scores them with FinBERT, aggregates the daily sentiment, and prints an **UP / DOWN / STABLE** call from each model. The **calibration plot on the right** justifies the 0.45-to-0.55 corridor we use to flag "stable / uncertain" predictions: empirically the model is reasonably calibrated only inside that band, and our predictions cluster there, so collapsing to a UP/DOWN/STABLE call rather than to a raw probability is the honest thing to do. If we have time, we can play the recording at the end; otherwise the QR-equivalent link is on the slide.
 
 *What does all of this actually mean?*
 
-## 23. Discussion
+## 24. Discussion
 
-Four reads. **First**, AUC near 0.50 lines up with the weak form of the Efficient Market Hypothesis &mdash; price-only signals give at most a marginal edge. **Second**, daily-aggregated sentiment is a thin signal: it loses intra-day timing, and the noisiest sectors mask it. **Third**, the XLK class collapse is real: the 2018-2019 test window had more flat/down than up days, and without re-weighting the model takes the easy route. **Fourth**, the reason SP500 benefits the most is that index-level returns **aggregate idiosyncratic noise**, leaving systematic news flow as a cleaner signal.
+The chart on the right makes our central interpretive claim visible: **all 16 configurations sit within plus-or-minus 0.03 of AUC = 0.50** &mdash; the line is the EMH ceiling. The colour, not the level, is what carries the story. Four reads. **First**, AUC near 0.50 lines up with the weak form of the Efficient Market Hypothesis &mdash; price-only signals give at most a marginal edge. **Second**, daily-aggregated sentiment is a thin signal: it loses intra-day timing, and the noisiest sectors mask it. **Third**, the XLK class collapse is real: the 2018-2019 test window had more flat/down than up days, and without re-weighting the model takes the easy route. **Fourth**, the reason SP500 benefits the most is that index-level returns **aggregate idiosyncratic noise**, leaving systematic news flow as a cleaner signal.
 
 *We are also honest about where this study is limited.*
 
-## 24. Limitations
+## 25. Limitations
 
-Seven honest caveats &mdash; I will hit the two new ones first. **First**, we report the plus-0.04 AUC delta as a **point estimate**: a DeLong test or bootstrap confidence interval on the 501-day test set is needed to confirm it is not noise. **Second**, even if accuracy holds at 0.57, a 5-to-10 basis-point round-trip transaction cost would erode most of the edge &mdash; our results are **scientific, not yet tradable**. Then the standard ones: Kaggle news corpus **skews toward mega-caps**; FinBERT scores **headlines only**; the fifty-headlines-per-day cap is a **compute-driven compromise**; we use a **single chronological split** &mdash; a walk-forward backtest would be stronger evidence; and hyper-parameters are kept at defaults so all sixteen runs stay directly comparable.
+Seven honest caveats &mdash; I will hit the two new ones first, and the chart on the right is the visual case for one of them. **First**, we report the plus-0.04 AUC delta as a **point estimate**: a DeLong test or bootstrap confidence interval on the 501-day test set is needed to confirm it is not noise. **Second**, even if accuracy holds at plus-five percent, the chart on the right shows that a 5-to-10 basis-point round-trip transaction cost erodes the edge to break-even around 9 bp on a daily long/flat strategy &mdash; our results are **scientific, not yet tradable**. Then the standard ones: Kaggle news corpus **skews toward mega-caps**; FinBERT scores **headlines only**; the fifty-headlines-per-day cap is a **compute-driven compromise**; we use a **single chronological split** &mdash; a walk-forward backtest would be stronger evidence; and hyper-parameters are kept at defaults so all sixteen runs stay directly comparable.
 
-*With that in mind, here is what we conclude.*
+*The next slide makes the tradability claim concrete with an actual equity curve.*
 
-## 25. Conclusions
+## 26. Trading reality check
+
+Four equity curves on the SP500 test window, all starting from one dollar, gross of any transaction costs. **Always-long buy-and-hold** ends at \$1.19 &mdash; the test window happened to be the tail of the 2017-2019 bull run, so the easy strategy looks strong. Our **Random Forest plus sentiment**, going long only when the probability of UP is at least 0.55, ends at \$1.17, while spending roughly half the time in cash &mdash; the model is **capturing most of the upside with less market exposure**. Loosening the threshold to 0.50 gives \$1.15. The **random 50/50 daily** baseline ends at \$1.09 &mdash; well below buy-and-hold &mdash; which confirms that our model is **not** just luck. But notice: gross of costs, we still do not beat buy-and-hold; adding even 5-to-10 basis-point round-trip costs from the previous slide flips the picture against us. So the plus-0.04 AUC is a **real, scientifically significant signal**, but it is not yet a tradable one.
+
+*With that picture in mind, here is what we conclude.*
+
+## 27. Conclusions
 
 Three take-aways. **One**, FinBERT headline sentiment **helps at the index level** when paired with Random Forest: plus 0.05 accuracy, plus 0.06 F1, plus 0.04 AUC over the technical-only baseline &mdash; small but consistent. **Two**, the sentiment effect is **not monotonic** in sector volatility &mdash; high-vol XLE benefits, low-vol XLP does not, and median-vol XLK also fails to benefit, so H2 is only partially supported. **Three**, the AUC-equals-0.50 ceiling on individual sectors is **consistent with the weak form of EMH** &mdash; the contribution of this work is the **sign and direction** of the delta from sentiment, not a tradable signal. Said honestly: the model is *slightly* better than always-up; it confirms sentiment carries information without breaking the daily-resolution ceiling.
 
 *Which leads directly into the future work.*
 
-## 26. Future work
+## 28. Future work
 
 Seven concrete next steps, in priority order. **Statistical significance** &mdash; DeLong test and bootstrap CIs on the plus-0.04 AUC delta. **Transaction-cost-aware backtest** of SP500 + RF + sentiment as a long/flat signal net of 5-to-10 basis-point costs. **Walk-forward evaluation** with expanding training windows. **Multi-resolution sentiment** &mdash; daily aggregates paired with K-day moving averages and event-time deltas. **Sector-aware news routing**, weighting each headline by its issuer's sector weight. **Class re-weighting** to fix XLK's collapse onto the majority class. And finally a **2020-to-2024 out-of-sample stress test** once we add a COVID-normalisation feature.
 
 *Quick pointer to the papers we built on.*
 
-## 27. Selected references
+## 29. Selected references
 
 These are the anchors we cited throughout the talk &mdash; Bollen, Vargas, Araci's FinBERT, Zhang, López de Prado, plus Breiman and Chen-Guestrin for the algorithms, Fama for EMH, and Mostafavi 2025 for the technical-indicator menu. The full bibliography is in the manuscript.
 
 *And with that&hellip;*
 
-## 28. Thank you
+## 30. Thank you
 
 Thank you. We are happy to take questions.
 
@@ -212,7 +224,9 @@ The appendix slides are not part of the main delivery; pull them up only if a qu
 | Setup (motivation, hypotheses, related work) | 3&ndash;5 | ~3 min |
 | Methodology (pipeline, data, indicators, volatility, FinBERT) | 6&ndash;10 | ~5 min |
 | EDA + experimental design + training | 11&ndash;14 | ~3 min |
-| Results + hypothesis check | 15&ndash;19 | ~4 min |
-| Demo + discussion + limitations + conclusions + future work | 20&ndash;24 | ~4 min |
-| References + close | 25&ndash;26 | ~1 min |
-| **Total** | | **~20 min** |
+| Results + ROC / confusion + uplift + feature importance + hypothesis check | 15&ndash;20 | ~4.5 min |
+| Honest interpretation + literature comparison | 21&ndash;22 | ~2 min |
+| Live demo + calibration | 23 | ~1.5 min |
+| Discussion + limitations + trading check + conclusions + future work | 24&ndash;28 | ~4 min |
+| References + close | 29&ndash;30 | ~1 min |
+| **Total** | | **~24 min** |
