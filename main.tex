@@ -79,14 +79,14 @@
 \setbeamertemplate{footline}{%
   \leavevmode%
   \hbox{%
-    \begin{beamercolorbox}[wd=.45\paperwidth,ht=2.25ex,dp=1ex,leftskip=0.9cm]{author in head/foot}%
-      \usebeamerfont{author in head/foot}\color{TecGray}\scriptsize C.~Castano \& B.~Garcia
+    \begin{beamercolorbox}[wd=.333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+      \usebeamerfont{author in head/foot}\color{TecGray}\scriptsize C.~Casta\~no \& B.~Garc\'ia
     \end{beamercolorbox}%
-    \begin{beamercolorbox}[wd=.45\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
-      \usebeamerfont{title in head/foot}\color{TecGray}\scriptsize S\&P 500 Direction Prediction --- FPA
+    \begin{beamercolorbox}[wd=.334\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+      \usebeamerfont{title in head/foot}\color{TecGray}\scriptsize S\&P~500 Direction Prediction
     \end{beamercolorbox}%
-    \begin{beamercolorbox}[wd=.10\paperwidth,ht=2.25ex,dp=1ex,rightskip=0.9cm,right]{date in head/foot}%
-      \usebeamerfont{date in head/foot}\color{TecGray}\scriptsize \insertframenumber/\inserttotalframenumber
+    \begin{beamercolorbox}[wd=.333\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
+      \usebeamerfont{date in head/foot}\color{TecGray}\scriptsize \insertframenumber\,/\,\inserttotalframenumber
     \end{beamercolorbox}}%
   \vskip0pt%
 }
@@ -98,6 +98,13 @@
 \newcommand{\good}[1]{{\color{TecGreen}\textbf{#1}}}
 \newcommand{\bad}[1]{{\color{TecRed}\textbf{#1}}}
 \newcommand{\heading}[1]{{\color{TecBlue}\textbf{#1}}}
+\newcommand{\figcaption}[1]{%
+  \begin{center}%
+    \vspace{3pt}%
+    {\color{TecGold}\rule{0.48\linewidth}{0.4pt}}\par\vspace{2pt}%
+    {\scriptsize\color{TecGray}#1}%
+  \end{center}%
+}
 
 \graphicspath{{figures/}}
 
@@ -232,8 +239,9 @@ $y_t = \begin{cases} 1 & \text{if } C_{t+1} > C_t \text{ (upward)} \\ 0 & \text{
 \begin{columns}[c,onlytextwidth]
 \column{0.62\textwidth}
 \begin{center}
-  \includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{work_pipeline.png}
+  \includegraphics[width=\linewidth,height=0.66\textheight,keepaspectratio]{work_pipeline.png}
 \end{center}
+\figcaption{Four-stage pipeline: OHLCV collection $\to$ feature engineering $\to$ FinBERT sentiment $\to$ tree-ensemble classifiers.}
 
 \column{0.36\textwidth}
 \small
@@ -284,7 +292,7 @@ Seven indicators derived from OHLCV. All persisted to per-dataset CSVs in \textt
 \vspace{6pt}
 \begin{center}
 \renewcommand{\arraystretch}{1.15}
-\begin{tabular}{@{}l l l@{}}
+\begin{tabular}{@{}l p{6.8cm} l@{}}
 \toprule
 \textbf{Indicator} & \textbf{Definition} & \textbf{Role} \\
 \midrule
@@ -310,14 +318,11 @@ The three highlighted sectors define the low / median / high-volatility datasets
 
 \vspace{2pt}
 \begin{center}
-  \includegraphics[width=0.98\linewidth,height=0.70\textheight,keepaspectratio]{sector_volatility.png}
+  \includegraphics[width=0.95\linewidth,height=0.60\textheight,keepaspectratio]{sector_volatility.png}
 \end{center}
-
-\vspace{-4pt}
-\centering\footnotesize
-\textbf{XLP} (Consumer Staples) low \quad\textcolor{TecGold}{$\bullet$}\quad
-\textbf{XLK} (Technology) median \quad\textcolor{TecGold}{$\bullet$}\quad
-\textbf{XLE} (Energy) high
+\figcaption{\textbf{XLP} (Consumer Staples) -- low \quad\textcolor{TecGold}{$\bullet$}\quad
+\textbf{XLK} (Technology) -- median \quad\textcolor{TecGold}{$\bullet$}\quad
+\textbf{XLE} (Energy) -- high}
 \end{frame}
 
 % ------------------------------ FinBERT --------------------------------------
@@ -325,8 +330,9 @@ The three highlighted sectors define the low / median / high-volatility datasets
 \begin{columns}[T,onlytextwidth]
 \column{0.50\textwidth}
 \begin{center}
-  \includegraphics[width=\linewidth,height=0.72\textheight,keepaspectratio]{finbert_workflow.png}
+  \includegraphics[width=\linewidth,height=0.62\textheight,keepaspectratio]{finbert_workflow.png}
 \end{center}
+\figcaption{FinBERT workflow: headline $\to$ transformer scoring $\to$ daily sentiment aggregation.}
 
 \column{0.48\textwidth}
 \small
@@ -351,23 +357,19 @@ $$\sigma^{S}_t \;=\; \mathrm{std}(s_i),\quad N_t \;=\; n_t$$
 % ------------------------------ EDA: class balance -------------------------
 \begin{frame}{EDA --- target class balance}
 \begin{center}
-  \includegraphics[width=0.92\linewidth,height=0.66\textheight,keepaspectratio]{class_balance.png}
+  \includegraphics[width=0.90\linewidth,height=0.60\textheight,keepaspectratio]{class_balance.png}
 \end{center}
-\vspace{2pt}
-\centering\footnotesize
-Mild but consistent up-bias: a naive ``always-up'' baseline already scores $\approx 0.55$ accuracy.\\
-AUC therefore remains the unbiased metric for ranking quality.
+\figcaption{Mild up-bias across all four datasets: a na\"ive ``always-up'' baseline scores $\approx 0.55$ accuracy.
+AUC is therefore the primary unbiased ranking metric.}
 \end{frame}
 
 % ------------------------------ EDA: news + sentiment -----------------------
 \begin{frame}{EDA --- news flow and FinBERT sentiment distribution}
 \begin{center}
-  \includegraphics[width=0.98\linewidth,height=0.68\textheight,keepaspectratio]{eda_news_sentiment.png}
+  \includegraphics[width=0.95\linewidth,height=0.60\textheight,keepaspectratio]{eda_news_sentiment.png}
 \end{center}
-\vspace{-2pt}
-\centering\footnotesize
-$\sim$386K headlines scored over the 10-year window (stratified sample of up to 50 per day, \texttt{random\_state=42}).\\
-Mean daily sentiment is mildly positive (+0.033, $\sigma=$0.168) --- coverage hits 100\% of trading days.
+\figcaption{${\sim}$386K headlines scored (up to 50/day, \texttt{random\_state=42}).
+Mean daily sentiment: $+0.033$, $\sigma=0.168$; 100\% trading-day coverage.}
 \end{frame}
 
 % ------------------------------ Experimental design --------------------------
@@ -375,8 +377,9 @@ Mean daily sentiment is mildly positive (+0.033, $\sigma=$0.168) --- coverage hi
 \begin{columns}[T,onlytextwidth]
 \column{0.6\textwidth}
 \begin{center}
-  \includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{experimental_design.png}
+  \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{experimental_design.png}
 \end{center}
+\figcaption{$2\times2\times4$ factorial design: 2 algorithms $\times$ 2 feature sets $\times$ 4 datasets = 16 runs.}
 
 \column{0.38\textwidth}
 \small
@@ -437,47 +440,37 @@ A trivial ``always up'' classifier can score $\sim$0.55 accuracy and $\sim$0.70 
 % ------------------------------ Results: technical ---------------------------
 \begin{frame}{Results --- technical features only}
 \begin{center}
-  \includegraphics[width=0.98\linewidth,height=0.72\textheight,keepaspectratio]{results_technical_only.png}
+  \includegraphics[width=0.95\linewidth,height=0.64\textheight,keepaspectratio]{results_technical_only.png}
 \end{center}
-\vspace{-4pt}
-\centering\footnotesize
-AUC clusters around 0.50 $\Rightarrow$ technical features alone barely separate up from non-up days.
-XGB on SP500 reaches F1 = 0.66 only because it leans on the majority class.\\
-\textbf{XLK} collapses to class 0 in this window (F1 = 0.23 / 0.27).
+\figcaption{AUC $\approx 0.50$ across all datasets --- technical features alone barely separate directions.
+XGB SP500 F1\,=\,0.66 reflects majority-class bias; \textbf{XLK} collapses to class 0 (F1\,=\,0.23--0.27).}
 \end{frame}
 
 % ------------------------------ Results: sentiment ---------------------------
 \begin{frame}{Results --- technical + FinBERT sentiment}
 \begin{center}
-  \includegraphics[width=0.98\linewidth,height=0.72\textheight,keepaspectratio]{results_technical_sentiment.png}
+  \includegraphics[width=0.95\linewidth,height=0.64\textheight,keepaspectratio]{results_technical_sentiment.png}
 \end{center}
-\vspace{-4pt}
-\centering\footnotesize
-\good{SP500 + RF + sentiment} jumps to \textbf{0.57 Acc / 0.68 F1 / 0.51 AUC} (+0.06 / +0.08 / +0.04). \\
-\good{XLE + XGB + sentiment} pushes AUC from 0.48 to 0.52 ---
-sentiment moves the needle on the broad index and on the high-volatility sector only.
+\figcaption{\good{SP500\,+\,RF\,+\,Sentiment}: 0.57 Acc / 0.68 F1 / 0.51 AUC (+0.06/+0.08/+0.04).
+\good{XLE\,+\,XGB\,+\,Sentiment}: AUC 0.48\,$\to$\,0.52. Sentiment helps at index level and high-vol sector only.}
 \end{frame}
 
 % ------------------------------ Delta plot -----------------------------------
 \begin{frame}{Sentiment uplift at a glance}
 \begin{center}
-  \includegraphics[width=0.98\linewidth,height=0.74\textheight,keepaspectratio]{sentiment_uplift.png}
+  \includegraphics[width=0.95\linewidth,height=0.65\textheight,keepaspectratio]{sentiment_uplift.png}
 \end{center}
-\vspace{-2pt}
-\centering\footnotesize
-Strongest positive cluster: \good{SP500 + RF} (all three metrics) and \good{XLE + XGB} (Acc and AUC).
-\textbf{XLP under RF} is the only configuration where sentiment hurts on every metric.
+\figcaption{Strongest gains: \good{SP500\,+\,RF} (all three metrics) and \good{XLE\,+\,XGB} (Acc, AUC).
+\bad{XLP\,+\,RF} is the only configuration where sentiment hurts across every metric.}
 \end{frame}
 
 % ------------------------------ Feature importance ---------------------------
 \begin{frame}{Where does the signal come from? Feature importance}
 \begin{center}
-  \includegraphics[width=0.98\linewidth,height=0.74\textheight,keepaspectratio]{feature_importance.png}
+  \includegraphics[width=0.95\linewidth,height=0.65\textheight,keepaspectratio]{feature_importance.png}
 \end{center}
-\vspace{-2pt}
-\centering\footnotesize
-\textbf{sentiment\_mean} (gold) ranks in the \textbf{top three} for the two configurations where it materially improved AUC.\\
-Tree ensembles spread importance fairly evenly across the seven technical features --- no single indicator dominates.
+\figcaption{\texttt{sentiment\_mean} (gold) ranks top-three where sentiment improved AUC.
+Technical features are spread evenly --- no single indicator dominates.}
 \end{frame}
 
 % ------------------------------ Hypothesis check -----------------------------
@@ -662,7 +655,7 @@ On AUC the two algorithms are tied. \textbf{Random Forest} wins on the SP500 ind
 \begin{frame}{Appendix --- Glossary (1/2): finance and indicators}
 \small
 \renewcommand{\arraystretch}{1.25}
-\begin{tabular}{@{}p{3.2cm} p{11cm}@{}}
+\begin{tabular}{@{}p{3.2cm} p{10.2cm}@{}}
 \heading{S\&P 500 index} & Capitalisation-weighted index tracking 500 of the largest U.S. publicly traded companies; benchmark for U.S. equity market health. \\
 \heading{GICS sector} & One of eleven Global Industry Classification Standard groupings (Tech, Financials, Energy, etc.) used to partition the S\&P 500 into thematic sub-universes. \\
 \heading{Sector ETF} & Exchange-traded fund that replicates the performance of a GICS sector --- e.g.\ \texttt{XLP} (Consumer Staples), \texttt{XLK} (Technology), \texttt{XLE} (Energy). \\
@@ -679,7 +672,7 @@ On AUC the two algorithms are tied. \textbf{Random Forest} wins on the SP500 ind
 \begin{frame}{Appendix --- Glossary (2/2): NLP and machine learning}
 \small
 \renewcommand{\arraystretch}{1.25}
-\begin{tabular}{@{}p{3.2cm} p{11cm}@{}}
+\begin{tabular}{@{}p{3.2cm} p{10.2cm}@{}}
 \heading{FinBERT} & BERT language model fine-tuned by Araci (2019) on a corpus of financial text; returns probabilities of \textit{positive}, \textit{negative}, and \textit{neutral} sentiment for a given input string. \\
 \heading{Sentiment score} & Net per-headline score $s_i = P(\text{pos}) - P(\text{neg}) \in [-1, 1]$, aggregated per trading day as a confidence-weighted mean. \\
 \heading{Target $y_t$} & Binary label: $1$ if $C_{t+1} > C_t$, else $0$. We predict \textit{direction}, not price. \\
