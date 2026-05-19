@@ -195,9 +195,9 @@
 
 \column{0.40\textwidth}
 \begin{center}
-  \includegraphics[width=0.78\linewidth,keepaspectratio]{sp500_banner.png}
+  \includegraphics[width=0.55\linewidth,keepaspectratio]{sp500_banner.png}
 \end{center}
-\vspace{-4pt}
+\vspace{-2pt}
 \begin{block}{Research question}
 \footnotesize Does a tree-based ensemble of technical indicators \alert{plus} short-form news sentiment beat a technical-only baseline at predicting next-day S\&P 500 direction --- and does the gain grow with sector volatility?
 \end{block}
@@ -299,10 +299,7 @@ $y_t = \begin{cases} 1 & \text{if } C_{t+1} > C_t \text{ (upward)} \\ 0 & \text{
 % ------------------------------ Technical indicators -------------------------
 \begin{frame}{Technical indicators}
 \small
-\begin{minipage}{0.70\linewidth}
 Seven indicators derived from OHLCV. All persisted to per-dataset CSVs in \texttt{datasets\_/}.
-\end{minipage}\hfill
-\raisebox{-6pt}{\includegraphics[height=24pt,keepaspectratio]{candle_chart.png}}
 
 \vspace{6pt}
 \begin{center}
@@ -683,12 +680,15 @@ The $+0.04$ AUC is a real signal over random --- but, gross of costs, buy-and-ho
 
 % ------------------------------ Conclusions ----------------------------------
 \begin{frame}{Conclusions}
-\footnotesize
+\scriptsize
 \begin{block}{Take-aways}
-\begin{enumerate}\setlength\itemsep{2pt}\setlength\parskip{0pt}
+\begin{enumerate}\setlength\itemsep{1pt}\setlength\parskip{0pt}
   \item FinBERT headline sentiment \alert{helps at the index level} with Random Forest: $+0.05$ Acc, $+0.06$ F1, $+0.04$ AUC --- small but consistent.
   \item The effect is \alert{not monotonic in sector volatility}: high-vol XLE benefits, XLP and XLK do not. \textbf{H2} only partially supported.
   \item The AUC $\approx 0.50$ ceiling is \alert{consistent with the weak form of EMH} --- the contribution is the \textit{sign of the delta}, not a tradable signal.
+  \item Algorithm choice is \alert{configuration-dependent}: Random Forest wins on the broad index, XGBoost wins on the high-volatility sector --- so \textbf{RQ2 has no universal winner}.
+  \item \texttt{sentiment\_mean} ranks \alert{top-three in feature importance} only on the two configurations where it improves AUC --- importance is consistent with the contribution, not just a model artefact.
+  \item Gross of costs, our long/flat signal reaches \$1.17 vs.\ \$1.19 buy-and-hold and \$1.09 random --- \alert{better than chance, not better than the easy baseline}.
 \end{enumerate}
 \end{block}
 
