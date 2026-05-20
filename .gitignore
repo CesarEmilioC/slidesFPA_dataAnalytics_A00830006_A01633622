@@ -29,3 +29,5 @@ Thumbs.db
 
 # Local PDFs (compile on Overleaf; do not check in unless explicitly needed)
 *.pdf
+
+PROJECT_SUMMARY.md
